@@ -1,0 +1,27 @@
+#include <botan/auto_rng.h>
+2 #include <botan/symkey.h>
+3 #include <botan/secmem.h>
+4 #include <botan/pipe.h>
+5 #include <botan/key_filt.h>
+6 #include <botan/cipher_mode.h>
+7
+8
+9 using namespace Botan;
+10 using SymmetricKey = OctetString;
+11
+12 int main(int argc, char* argv[])
+13 {
+14 AutoSeeded_RNG rng;
+15 SymmetricKey key(rng, 16); //a random 128-bit key
+16 InitializationVector iv(rng, 16); //a random 128-bit IV
+17
+18 Pipe pipe(get_cipher("AES-128/CBC", key, iv, ENCRYPTION));
+19
+20 pipe.process_msg("secrets1");
+21 pipe.process_msg("secrets2"); //there is a exception ....
+22
+23 secure_vector c1 = pipe.read_all(0);
+24 byte c2[4096] = { 0 };
+25 size_t got_out = pipe.read(c2, sizeof(c2), 1);
+26 return 0;
+27 }

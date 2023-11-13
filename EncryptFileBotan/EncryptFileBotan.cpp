@@ -23,6 +23,25 @@ void Encrypt(Botan::OctetString key, Botan::InitializationVector iv, std::string
    std::cout << "Encrypted!" << std::endl;
 }
 
+
+void Decrypt(Botan::OctetString key, Botan::InitializationVector iv, std::string inFileName, std::string outFileName)
+{
+   std::ifstream in(inFileName.c_str(), std::ios::binary);
+   std::ofstream out(outFileName.c_str(), std::ios::binary);
+
+   Botan::Pipe pipe(Botan::get_cipher("AES-128/CBC", key, iv, Botan::Cipher_Dir::Decryption), new Botan::DataSink_Stream(out));
+   pipe.start_msg();
+   in >> pipe;
+   pipe.end_msg();
+
+   out.flush();
+   out.close();
+   in.close();
+
+   std::cout << "Decrypted!" << std::endl;
+}
+
+
 int main()
 {
    std::cout << "Start Botan programm:" << std::endl;
@@ -46,9 +65,7 @@ int main()
    std::cout << "Encryption key: " << aes256_key.to_string() << std::endl;
 
    Encrypt(aes256_key, iv, filePlainText, fileEncrypted);
-
-
-
+   Decrypt(aes256_key, iv, fileEncrypted, fileDecrypted);
 
 
 }
